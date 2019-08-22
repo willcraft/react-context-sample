@@ -1,26 +1,39 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useRef } from 'react';
 
-function App() {
+import styled from 'styled-components';
+import { useTodoState } from './store';
+
+const Container = styled.div`
+  padding: 10px;
+`;
+
+const Task = styled.span`
+  text-decoration: ${props => props.completed ? 'line-through' : 'none' };
+`;
+
+const App = () => {
+  const task = useRef(null)
+  const [state, dispatch] = useTodoState();
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <Container>
+        <h1>TODO</h1>
+        <input type="text" ref={task} />
+        <button onClick={() => {
+          dispatch({ type: 'ADD', payload: { task: task.current.value }});
+          task.current.value = '';
+        }}>add</button>
+        <button onClick={() => dispatch({ type: 'CLEAR' })}>all clear</button>
+        {state.todo.map((todo, index) => (
+          <div key={index}>
+            <Task completed={todo.completed}>{todo.task}</Task>
+            <input type="checkbox" checked={todo.completed} onChange={() => dispatch({ type: 'TOGGLE', payload: { index } })} />
+            <button onClick={() => dispatch({ type: 'DELETE', payload: { index }})}>delete</button>
+          </div>
+        ))}
+      </Container>
+    </>
+  )
 }
 
 export default App;
